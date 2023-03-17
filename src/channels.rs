@@ -3,9 +3,18 @@ use std::sync::mpsc::{RecvTimeoutError, Sender};
 use std::thread;
 use std::time::{Duration, Instant};
 
+pub fn channels_main() {
+    let t = thread::spawn(|| {
+        print_every_100ms();
+    });
+
+    t.join().unwrap();
+
+}
+
 // Calculate cumulative average of numbers from 1 to 10_000_000
 // and sends average to main thread using Sender.
-fn ex3_channels(tx: Sender<f64>) {
+fn sender(tx: Sender<f64>) {
     let len = 10_000_000;
     let mut sum = 0.0;
 
@@ -20,11 +29,11 @@ fn ex3_channels(tx: Sender<f64>) {
 }
 
 // Print received average every 100ms
-pub fn ex3_channels_call() {
+fn print_every_100ms() {
     let (tx, rx) = mpsc::channel();
 
     let t = thread::spawn(move || {
-        ex3_channels(tx);
+        sender(tx);
     });
 
     let mut last_print_time = Instant::now();
